@@ -38,9 +38,9 @@ Bullet• is triggered by Dagger‡'s `@Component` and `@Subcomponent` annotatio
 so you only need to put Bullet• in your processor path to get it to work;
 no need to change anything to your component interfaces.
 
-The bullet-${bullet.version}.jar needs to be included in the application's runtime. In order to activate code generation the bullet-compiler-${dagger.version}.jar needs to be included in your build at compile time.
+The bullet-${bullet.version}.jar needs to be included in the application's runtime. In order to activate code generation the bullet-compiler-${bullet.version}.jar needs to be included in your build at compile time.
 
-In a Maven project, you might include the runtime in the dependencies section of your pom.xml (replacing ${dagger.version} with the appropriate current release), and the dagger-compiler artifact as an "optional" or "provided" dependency:
+In a Maven project, you might include the runtime in the dependencies section of your pom.xml (replacing ${bullet.version} with the appropriate current release), and the bullet-compiler artifact as an "optional" or "provided" dependency:
 
 ```xml
 <dependencies>
