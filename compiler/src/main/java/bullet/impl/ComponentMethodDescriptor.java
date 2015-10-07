@@ -1,5 +1,11 @@
 package bullet.impl;
 
+import com.google.auto.common.AnnotationMirrors;
+import com.google.auto.common.MoreElements;
+import com.google.auto.common.MoreTypes;
+import com.google.auto.value.AutoValue;
+import com.google.common.base.Optional;
+
 import java.util.List;
 
 import javax.inject.Provider;
@@ -11,12 +17,6 @@ import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
-
-import com.google.auto.common.AnnotationMirrors;
-import com.google.auto.common.MoreElements;
-import com.google.auto.common.MoreTypes;
-import com.google.auto.value.AutoValue;
-import com.google.common.base.Optional;
 
 import dagger.Lazy;
 import dagger.MembersInjector;
