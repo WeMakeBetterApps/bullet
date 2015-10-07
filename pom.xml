@@ -10,7 +10,7 @@
   <groupId>com.wemakebetterapps</groupId>
   <artifactId>bullet-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.21</version>
 
   <name>Bullet (Parent)</name>
   <description>Provides Dagger1-like ObjectGraph API around Dagger2 Components</description>
@@ -49,7 +49,7 @@
     <connection>scm:git:git://github.com/WeMakeBetterApps/bullet.git</connection>
     <developerConnection>scm:git:git@github.com:WeMakeBetterApps/bullet.git</developerConnection>
     <url>https://github.com/WeMakeBetterApps/bullet</url>
-    <tag>HEAD</tag>
+    <tag>v21</tag>
   </scm>
   <issueManagement>
     <system>GitHub</system>
