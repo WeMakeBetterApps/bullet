@@ -137,7 +137,7 @@ public abstract class AbstractComponentProcessorTest {
             "  private static final ClassIndexHashTable classIndexHashTable;\n" +
             "\n" +
             "  static {\n" +
-            "    classIndexHashTable = new ClassIndexHashTable(2);\n" +
+            "    classIndexHashTable = new ClassIndexHashTable(3);\n" +
             "    classIndexHashTable.put(OuterType.B.class, (char) 0);\n" +
             "  }\n" +
             "\n" +
@@ -264,7 +264,7 @@ public abstract class AbstractComponentProcessorTest {
             "  private static final ClassIndexHashTable classIndexHashTable;\n" +
             "\n" +
             "  static {\n" +
-            "    classIndexHashTable = new ClassIndexHashTable(3);\n" +
+            "    classIndexHashTable = new ClassIndexHashTable(11);\n" +
             "    classIndexHashTable.put(A.class, (char) 0);\n" +
             "    classIndexHashTable.put(C.class, (char) 1);\n" +
             "    classIndexHashTable.put(B.class, (char) 2);\n" +
@@ -380,7 +380,7 @@ public abstract class AbstractComponentProcessorTest {
             "  private static final ClassIndexHashTable classIndexHashTable;\n" +
             "\n" +
             "  static {\n" +
-            "    classIndexHashTable = new ClassIndexHashTable(2);\n" +
+            "    classIndexHashTable = new ClassIndexHashTable(5);\n" +
             "    classIndexHashTable.put(C.class, (char) 0);\n" +
             "    classIndexHashTable.put(A.class, (char) 1);\n" +
             "    classIndexHashTable.put(B.class, (char) 2);\n" +
@@ -722,7 +722,7 @@ public abstract class AbstractComponentProcessorTest {
             "  private static final ClassIndexHashTable classIndexHashTable;\n" +
             "\n" +
             "  static {\n" +
-            "    classIndexHashTable = new ClassIndexHashTable(2);\n" +
+            "    classIndexHashTable = new ClassIndexHashTable(3);\n" +
             "    classIndexHashTable.put(B.class, (char) 0);\n" +
             "  }\n" +
             "\n" +
