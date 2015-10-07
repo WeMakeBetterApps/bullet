@@ -15,7 +15,23 @@
  */
 package bullet.impl;
 
-import static javax.lang.model.element.Modifier.*;
+import com.google.auto.common.BasicAnnotationProcessor;
+import com.google.auto.common.MoreElements;
+import com.google.auto.common.MoreTypes;
+import com.google.auto.common.Visibility;
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,8 +40,9 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.annotation.Generated;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -38,26 +55,14 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
 
-import com.google.auto.common.BasicAnnotationProcessor;
-import com.google.auto.common.MoreElements;
-import com.google.auto.common.MoreTypes;
-import com.google.auto.common.Visibility;
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
-
 import bullet.impl.ComponentMethodDescriptor.ComponentMethodKind;
 import dagger.Component;
 import dagger.Subcomponent;
+
+import static javax.lang.model.element.Modifier.FINAL;
+import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.STATIC;
 
 class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep {
 
@@ -145,6 +150,15 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
 
     final ClassName elementName = ClassName.get(element);
 
+    // Filter out duplicate injections
+    Map<TypeMirror, ComponentMethodDescriptor> membersInjectionMethodsMap = new LinkedHashMap<>(membersInjectionMethods.size());
+    for (ComponentMethodDescriptor componentMethod : membersInjectionMethods) {
+      ComponentMethodDescriptor storedComponentMethod = membersInjectionMethodsMap.get(componentMethod.type());
+      if (storedComponentMethod == null || storedComponentMethod.kind() != ComponentMethodKind.MEMBERS_INJECTOR) {
+        membersInjectionMethodsMap.put(componentMethod.type(), componentMethod);
+      }
+    }
+
     final TypeSpec.Builder classBuilder = TypeSpec.classBuilder("Bullet" + Joiner.on("_").join(elementName.simpleNames()))
         .addOriginatingElement(element)
         .addAnnotation(AnnotationSpec.builder(Generated.class)
@@ -152,14 +166,31 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
             .build())
         .addModifiers(PUBLIC, FINAL)
         .addSuperinterface(ClassName.get("bullet", "ObjectGraph"))
-
         .addField(elementName, "component", PRIVATE, FINAL)
-
         .addMethod(MethodSpec.constructorBuilder()
             .addModifiers(PUBLIC)
             .addParameter(elementName, "component", FINAL)
             .addCode("this.component = component;\n")
             .build());
+
+    if (membersInjectionMethodsMap.size() > 0) {
+      classBuilder.addField(ClassName.get("bullet.impl", "ClassIndexHashTable"), "classIndexHashTable", PRIVATE, STATIC, FINAL);
+    }
+
+    // Generate the ClassIndexHashTable if there are classes to inject.
+    if (membersInjectionMethodsMap.size() > 0) {
+      // ClassIndexHashTable size should be at least 30% larger and a prime number.
+      int classIndexHashTableSize = getNextPrime((int) Math.ceil(membersInjectionMethodsMap.size() * 0.3));
+
+      CodeBlock.Builder classIndexHashTableCodeBlockBuilder = CodeBlock.builder()
+          .add("classIndexHashTable = new ClassIndexHashTable(" + classIndexHashTableSize + ");\n");
+
+      int i = 0;
+      for (Map.Entry<TypeMirror, ComponentMethodDescriptor> entry : membersInjectionMethodsMap.entrySet()) {
+        classIndexHashTableCodeBlockBuilder.add("classIndexHashTable.put($T.class, (char) " + i++ + ");\n", entry.getValue().type());
+      }
+      classBuilder.addStaticBlock(classIndexHashTableCodeBlockBuilder.build());
+    }
 
     final TypeVariableName t = TypeVariableName.get("T");
     final MethodSpec.Builder getBuilder = MethodSpec.methodBuilder("get")
@@ -175,8 +206,7 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
           "$<}\n",
           method.type(), method.name(), method.kind() == ComponentMethodKind.PROVIDER_OR_LAZY ? ".get()" : "");
     }
-    // TODO: exception message
-    getBuilder.addCode("throw new $T();\n", IllegalArgumentException.class);
+    getBuilder.addCode("throw new $T(\"No get or Provides method found for \" + type.getName() + \" in " + elementName.simpleName() + "\");\n", IllegalArgumentException.class);
     classBuilder.addMethod(getBuilder.build());
 
     final MethodSpec.Builder injectWriter = MethodSpec.methodBuilder("inject")
@@ -185,16 +215,34 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
         .addTypeVariable(t)
         .returns(t)
         .addParameter(t, "instance", FINAL);
-    for (ComponentMethodDescriptor method : membersInjectionMethods) {
+
+    // Generate injection code if there are injections
+    if (membersInjectionMethodsMap.size() > 0) {
       injectWriter.addCode(
-          "if (instance instanceof $T) {\n$>" +
-          "this.component.$N$L(($T) instance);\n" +
-          "return instance;\n" +
-          "$<}\n",
-          method.type(), method.name(), method.kind() == ComponentMethodKind.MEMBERS_INJECTOR ? "().injectMembers" : "", method.type());
+          "Class<?> c = instance.getClass();\n" +
+              "while (c != Object.class) {\n$>" +
+              "switch (classIndexHashTable.get(c)) {\n$>");
+
+      {
+        int i = 0;
+        for (Map.Entry<TypeMirror, ComponentMethodDescriptor> entry : membersInjectionMethodsMap.entrySet()) {
+          ComponentMethodDescriptor method = entry.getValue();
+          injectWriter.addCode(
+              "case " + i++ + ":\n$>" +
+                  "this.component.$N$L(($T) instance);\n" +
+                  "return instance;\n$<",
+              method.name(), method.kind() == ComponentMethodKind.MEMBERS_INJECTOR ? "().injectMembers" : "", method.type()
+          );
+        }
+      }
+
+      injectWriter.addCode(
+          "$<}\n" +
+              "c = c.getSuperclass();\n" +
+              "$<}\n");
     }
-    // TODO: exception message
-    injectWriter.addCode("throw new $T();\n", IllegalArgumentException.class);
+
+    injectWriter.addCode("throw new $T(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in " + elementName.simpleName() + "\");\n", IllegalArgumentException.class);
     classBuilder.addMethod(injectWriter.build());
 
     try {
@@ -223,5 +271,23 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
       default:
         throw new AssertionError();
     }
+  }
+
+  private static int getNextPrime(int value) {
+    while (true) {
+      value++;
+      if (isPrime(value)) {
+        return value;
+      }
+    }
+  }
+
+  private static boolean isPrime(int value) {
+    for (int i = 2; i < value; i++) {
+      if (value % i == 0) {
+        return false;
+      }
+    }
+    return true;
   }
 }
