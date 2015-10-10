@@ -89,12 +89,12 @@ public abstract class AbstractComponentProcessorTest {
             "    if (type == SomeInjectableType.class) {\n" +
             "      return type.cast(this.component.someInjectableType());\n" +
             "    }\n" +
-            "    throw new IllegalArgumentException(\"No get or Provides method found for \" + type.getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'get', 'Provider', or 'Lazy' method found for \" + type.getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "\n" +
             "  @Override\n" +
             "  public <T> T inject(final T instance) {\n" +
-            "    throw new IllegalArgumentException(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'inject' or 'MembersInject' method found for \" + instance.getClass().getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "}");
     assert_().about(javaSources()).that(ImmutableList.of(injectableTypeFile, otherInjectableTypeFile, subcomponentFile, componentFile))
@@ -152,7 +152,7 @@ public abstract class AbstractComponentProcessorTest {
             "    if (type == OuterType.A.class) {\n" +
             "      return type.cast(this.component.a());\n" +
             "    }\n" +
-            "    throw new IllegalArgumentException(\"No get or Provides method found for \" + type.getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'get', 'Provider', or 'Lazy' method found for \" + type.getName() + \" in OuterType.SimpleComponent.\");\n" +
             "  }\n" +
             "\n" +
             "  @Override\n" +
@@ -166,7 +166,7 @@ public abstract class AbstractComponentProcessorTest {
             "      }\n" +
             "      c = c.getSuperclass();\n" +
             "    }\n" +
-            "    throw new IllegalArgumentException(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'inject' or 'MembersInject' method found for \" + instance.getClass().getName() + \" in OuterType.SimpleComponent.\");\n" +
             "  }\n" +
             "}");
     assert_().about(javaSources()).that(ImmutableList.of(nestedTypesFile))
@@ -281,7 +281,7 @@ public abstract class AbstractComponentProcessorTest {
             "\n" +
             "  @Override\n" +
             "  public <T> T get(final Class<T> type) {\n" +
-            "    throw new IllegalArgumentException(\"No get or Provides method found for \" + type.getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'get', 'Provider', or 'Lazy' method found for \" + type.getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "\n" +
             "  @Override\n" +
@@ -310,7 +310,7 @@ public abstract class AbstractComponentProcessorTest {
             "      }\n" +
             "      c = c.getSuperclass();\n" +
             "    }\n" +
-            "    throw new IllegalArgumentException(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'inject' or 'MembersInject' method found for \" + instance.getClass().getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "}");
     assert_().about(javaSources()).that(ImmutableList.of(iFile, i2File, aFile, bFile, cFile, dFile, eFile, componentFile))
@@ -394,7 +394,7 @@ public abstract class AbstractComponentProcessorTest {
             "\n" +
             "  @Override\n" +
             "  public <T> T get(final Class<T> type) {\n" +
-            "    throw new IllegalArgumentException(\"No get or Provides method found for \" + type.getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'get', 'Provider', or 'Lazy' method found for \" + type.getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "\n" +
             "  @Override\n" +
@@ -414,7 +414,7 @@ public abstract class AbstractComponentProcessorTest {
             "      }\n" +
             "      c = c.getSuperclass();\n" +
             "    }\n" +
-            "    throw new IllegalArgumentException(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'inject' or 'MembersInject' method found for \" + instance.getClass().getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "}");
     assert_().about(javaSources()).that(ImmutableList.of(dFile, aFile, bFile, cFile, componentFile))
@@ -553,12 +553,12 @@ public abstract class AbstractComponentProcessorTest {
             "    if (type == G.class) {\n" +
             "      return type.cast(this.component.protectedMethod());\n" +
             "    }\n" +
-            "    throw new IllegalArgumentException(\"No get or Provides method found for \" + type.getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'get', 'Provider', or 'Lazy' method found for \" + type.getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "\n" +
             "  @Override\n" +
             "  public <T> T inject(final T instance) {\n" +
-            "    throw new IllegalArgumentException(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'inject' or 'MembersInject' method found for \" + instance.getClass().getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "}");
     assert_().about(javaSources()).that(ImmutableList.of(
@@ -610,12 +610,12 @@ public abstract class AbstractComponentProcessorTest {
             "    if (type == SomeInjectableType.class) {\n" +
             "      return type.cast(this.component.someInjectableType().get());\n" +
             "    }\n" +
-            "    throw new IllegalArgumentException(\"No get or Provides method found for \" + type.getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'get', 'Provider', or 'Lazy' method found for \" + type.getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "\n" +
             "  @Override\n" +
             "  public <T> T inject(final T instance) {\n" +
-            "    throw new IllegalArgumentException(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'inject' or 'MembersInject' method found for \" + instance.getClass().getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "}");
     assert_().about(javaSources()).that(ImmutableList.of(injectableTypeFile, componentFile))
@@ -666,12 +666,12 @@ public abstract class AbstractComponentProcessorTest {
             "    if (type == SomeInjectableType.class) {\n" +
             "      return type.cast(this.component.someInjectableType().get());\n" +
             "    }\n" +
-            "    throw new IllegalArgumentException(\"No get or Provides method found for \" + type.getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'get', 'Provider', or 'Lazy' method found for \" + type.getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "\n" +
             "  @Override\n" +
             "  public <T> T inject(final T instance) {\n" +
-            "    throw new IllegalArgumentException(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'inject' or 'MembersInject' method found for \" + instance.getClass().getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "}");
     assert_().about(javaSources()).that(ImmutableList.of(injectableTypeFile, componentFile))
@@ -734,7 +734,7 @@ public abstract class AbstractComponentProcessorTest {
             "\n" +
             "  @Override\n" +
             "  public <T> T get(final Class<T> type) {\n" +
-            "    throw new IllegalArgumentException(\"No get or Provides method found for \" + type.getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'get', 'Provider', or 'Lazy' method found for \" + type.getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "\n" +
             "  @Override\n" +
@@ -748,7 +748,7 @@ public abstract class AbstractComponentProcessorTest {
             "      }\n" +
             "      c = c.getSuperclass();\n" +
             "    }\n" +
-            "    throw new IllegalArgumentException(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in SimpleComponent\");\n" +
+            "    throw new IllegalArgumentException(\"No 'inject' or 'MembersInject' method found for \" + instance.getClass().getName() + \" in SimpleComponent.\");\n" +
             "  }\n" +
             "}");
     assert_().about(javaSources()).that(ImmutableList.of(aFile, bFile, componentFile))

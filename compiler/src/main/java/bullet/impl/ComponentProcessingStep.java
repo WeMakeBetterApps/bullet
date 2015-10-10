@@ -204,7 +204,7 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
           "$<}\n",
           method.type(), method.name(), method.kind() == ComponentMethodKind.PROVIDER_OR_LAZY ? ".get()" : "");
     }
-    getBuilder.addCode("throw new $T(\"No get or Provides method found for \" + type.getName() + \" in " + elementName.simpleName() + "\");\n", IllegalArgumentException.class);
+    getBuilder.addCode("throw new $T(\"No 'get', 'Provider', or 'Lazy' method found for \" + type.getName() + \" in $T.\");\n", IllegalArgumentException.class, elementName);
     classBuilder.addMethod(getBuilder.build());
 
     final MethodSpec.Builder injectWriter = MethodSpec.methodBuilder("inject")
@@ -241,7 +241,7 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
               "$<}\n");
     }
 
-    injectWriter.addCode("throw new $T(\"No inject or MembersInject method found for \" + instance.getClass().getName() + \" in " + elementName.simpleName() + "\");\n", IllegalArgumentException.class);
+    injectWriter.addCode("throw new $T(\"No 'inject' or 'MembersInject' method found for \" + instance.getClass().getName() + \" in $T.\");\n", IllegalArgumentException.class, elementName);
     classBuilder.addMethod(injectWriter.build());
 
     try {
