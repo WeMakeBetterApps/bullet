@@ -173,12 +173,10 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
             .addCode("this.component = component;\n")
             .build());
 
-    if (membersInjectionMethodsMap.size() > 0) {
-      classBuilder.addField(ClassName.get("bullet.impl", "ClassIndexHashTable"), "classIndexHashTable", PRIVATE, STATIC, FINAL);
-    }
-
     // Generate the ClassIndexHashTable if there are classes to inject.
     if (membersInjectionMethodsMap.size() > 0) {
+      classBuilder.addField(ClassName.get("bullet.impl", "ClassIndexHashTable"), "classIndexHashTable", PRIVATE, STATIC, FINAL);
+
       // ClassIndexHashTable size should be at least 30% larger and a prime number.
       int classIndexHashTableSize = getNextPrime((int) Math.ceil(membersInjectionMethodsMap.size() * 1.3));
 
@@ -228,10 +226,11 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
         for (Map.Entry<TypeMirror, ComponentMethodDescriptor> entry : membersInjectionMethodsMap.entrySet()) {
           ComponentMethodDescriptor method = entry.getValue();
           injectWriter.addCode(
-              "case " + i++ + ":\n$>" +
+              "case $L:\n$>" +
                   "this.component.$N$L(($T) instance);\n" +
                   "return instance;\n$<",
-              method.name(), method.kind() == ComponentMethodKind.MEMBERS_INJECTOR ? "().injectMembers" : "", method.type()
+              i++, method.name(),
+              method.kind() == ComponentMethodKind.MEMBERS_INJECTOR ? "().injectMembers" : "", method.type()
           );
         }
       }
