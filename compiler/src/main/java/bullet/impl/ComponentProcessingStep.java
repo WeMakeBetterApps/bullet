@@ -180,8 +180,7 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
     // Generate the ClassIndexHashTable if there are classes to inject.
     if (membersInjectionMethodsMap.size() > 0) {
       // ClassIndexHashTable size should be at least 30% larger and a prime number.
-      int classIndexHashTableSize = getNextPrime((int) Math.ceil(membersInjectionMethodsMap.size()
-          + membersInjectionMethodsMap.size() * 0.3));
+      int classIndexHashTableSize = getNextPrime((int) Math.ceil(membersInjectionMethodsMap.size() * 1.3));
 
       CodeBlock.Builder classIndexHashTableCodeBlockBuilder = CodeBlock.builder()
           .add("classIndexHashTable = new ClassIndexHashTable(" + classIndexHashTableSize + ");\n");
