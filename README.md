@@ -1,88 +1,100 @@
 Bullet
 ======
 
-Provides Dagger†-like ObjectGraph API around Dagger‡ Components
+Provides Dagger1-like ObjectGraph API around Dagger2 Components, without using reflection.
 
 Download
 --------
 
 Releases are deployed to [the Central Repository][releases]
+ [releases]: https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.wemakebetterapps%22
+ 
+```groovy
+compile 'com.wemakebetterapps:bullet:0.21'
+provided 'com.wemakebetterapps:bullet-compiler:0.21'
+```
 
-Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
-
- [releases]: https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.ltgt.dagger%22
- [snap]: https://oss.sonatype.org/content/repositories/snapshots/
-
-When to use Bullet•
--------------------
-
-If you don't have a use-case for Bullet•, don't use it.
-If you do have a use-case for it, try to refactor your code to remove that need.
-Bullet• can possibly be useful when migrating from Dagger† to Dagger‡, but not everyone agrees.
-
-Usage
------
-
-Bullet• generates a class with a `Bullet` prefix next to your components
-(and next to the `Dagger_`-prefixed class that Dagger‡ generates),
-whose constructor expects an instance of your component as argument,
-and which implements the `bullet.ObjectGraph` interface providing:
-
- * a `<T> T get(Class<T> type)` method to get an instance of some type `T`
- * a `<T> T inject(T instance)` method to inject members of some existing instance of type `T`
-
-The `ObjectGraph` will delegate to the appropriate method of the wrapped component depending on the argument
-and, similarly to Dagger†, throw an `IllegalArgumentException` if none can be found.
-
-Bullet• is triggered by Dagger‡'s `@Component` and `@Subcomponent` annotations,
-so you only need to put Bullet• in your processor path to get it to work;
-no need to change anything to your component interfaces.
-
-The bullet-${bullet.version}.jar needs to be included in the application's runtime. In order to activate code generation the bullet-compiler-${bullet.version}.jar needs to be included in your build at compile time.
-
-In a Maven project, you might include the runtime in the dependencies section of your pom.xml (replacing ${bullet.version} with the appropriate current release), and the bullet-compiler artifact as an "optional" or "provided" dependency:
-
+If using Gradle and Android, you could use [android-apt](https://bitbucket.org/hvisser/android-apt):
+```groovy
+compile 'com.wemakebetterapps:bullet:0.21'
+apt 'com.wemakebetterapps:bullet-compiler:0.21'
+```
+ 
 ```xml
 <dependencies>
- <dependency>
-  <groupId>net.ltgt.dagger</groupId>
-  <artifactId>bullet</artifactId>
-  <version>${bullet.version}</version>
- </dependency>
- <dependency>
-  <groupId>net.ltgt.dagger</groupId>
-  <artifactId>bullet-compiler</artifactId>
-  <version>${bullet.version}</version>
-  <optional>true</optional>
- </dependency>
+  <dependency>
+    <groupId>com.wemakebetterapps</groupId>
+    <artifactId>bullet</artifactId>
+    <version>${bullet.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>com.wemakebetterapps</groupId>
+    <artifactId>bullet-compiler</artifactId>
+    <version>${bullet.version}</version>
+    <optional>true</optional>
+  </dependency>
 </dependencies>
 ```
 
-In a Gradle project is similar:
+Example
+-------
 
-```groovy
-compile 'net.ltgt.dagger:bullet:0.20'
-provided 'net.ltgt.dagger:bullet-compiler:0.20'
+```java
+@Singleton
+@Component(modules = ModuleA.class)
+public interface ComponentA {
+    void inject(ClassToInject obj);
+    ClassA getClassA();
+}
 ```
 
-If using Gradle and Android, you could use [android-apt](https://bitbucket.org/hvisser/android-apt), which is more appropiate to use with Android Studio:
-
-```groovy
-compile 'net.ltgt.dagger:bullet:0.20'
-apt 'net.ltgt.dagger:bullet-compiler:0.20'
+```java
+@Module
+public class ModuleA {
+    @Provides @Singleton ClassA providesClassA() {
+         return new ClassA();
+    }
+}
 ```
 
-Notes on name and version
--------------------------
+```java
+public class ClassA {
+}
+```
 
-Dagger's name comes from a play on words because it builds a directed acyclic graph (DAG).
-It happens that Unicode has a character named dagger (†): codepoint U+2020.
-Dagger 2 is sometimes shortened to ‡, the double-dagger Unicode character, codepoint U+2021.
-Bullet is thus named after Unicode's U+2022.
+```java
+public class ClassToInject {
+    @Inject ClassA classA;
+}
+```
 
-Because I started this project only as a proof-of-concept and mostly _for fun_, and to learn more about annotation processors,
-I'll name versions after firearms calibers (not that I like guns or find them “fun” –I don't– but just to continue on the pun),
-possibly ending with a 1.0 _silver bullet_.
+```java
+// 1. Create Dagger 2 Component
+ComponentA componentA = DaggerComponentA.builder().build();
+
+// 2. Create Bullet Component using the Dagger 2 Component
+ObjectGraph objectGraph = new BulletComponentA(componentA);
+
+// 3. The Bullet Component implements the ObjectGraph interface.
+
+// Inject any Class that has an 'inject', or 'MembersInject' method on the component.
+ClassToInject classToInject = new ClassToInject();
+objectGraph.inject(classToInject);
+
+// Get any object by Class that has a `get`, `Lazy`, or `Provider` method on the component.
+ClassA classASingleton = objectGraph.get(ClassA.class);
+```
+
+Proguard
+--------
+
+Just like Dagger 2, Bullet doesn't use any reflection, and thus is completely compatible with Proguard.
+
+How does it work?
+-----------------
+
+Bullet is an annotation processor triggered by Dagger 2's `@Component` and `@Subcomponent` annotations.
+All you need to do is put Bullet in your processor path. It should work with all component configurations.
 
 License
 -------
