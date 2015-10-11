@@ -40,6 +40,23 @@ Example
 -------
 
 ```java
+// 1. Create Dagger 2 Component
+ComponentA componentA = DaggerComponentA.builder().build();
+
+// 2. Create Bullet Component using the Dagger 2 Component
+ObjectGraph objectGraph = new BulletComponentA(componentA);
+
+// 3. The Bullet Component implements the ObjectGraph interface.
+
+// Inject any Class that has an 'inject', or 'MembersInject' method on the component.
+ClassToInject classToInject = new ClassToInject();
+objectGraph.inject(classToInject);
+
+// Get any object by Class that has a `get`, `Lazy`, or `Provider` method on the component.
+ClassA classASingleton = objectGraph.get(ClassA.class);
+```
+
+```java
 @Singleton
 @Component(modules = ModuleA.class)
 public interface ComponentA {
@@ -66,23 +83,6 @@ public class ClassA {
 public class ClassToInject {
     @Inject ClassA classA;
 }
-```
-
-```java
-// 1. Create Dagger 2 Component
-ComponentA componentA = DaggerComponentA.builder().build();
-
-// 2. Create Bullet Component using the Dagger 2 Component
-ObjectGraph objectGraph = new BulletComponentA(componentA);
-
-// 3. The Bullet Component implements the ObjectGraph interface.
-
-// Inject any Class that has an 'inject', or 'MembersInject' method on the component.
-ClassToInject classToInject = new ClassToInject();
-objectGraph.inject(classToInject);
-
-// Get any object by Class that has a `get`, `Lazy`, or `Provider` method on the component.
-ClassA classASingleton = objectGraph.get(ClassA.class);
 ```
 
 Proguard
