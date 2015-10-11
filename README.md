@@ -38,6 +38,40 @@ Bullet• is triggered by Dagger‡'s `@Component` and `@Subcomponent` annotatio
 so you only need to put Bullet• in your processor path to get it to work;
 no need to change anything to your component interfaces.
 
+The bullet-${bullet.version}.jar needs to be included in the application's runtime. In order to activate code generation the bullet-compiler-${bullet.version}.jar needs to be included in your build at compile time.
+
+In a Maven project, you might include the runtime in the dependencies section of your pom.xml (replacing ${bullet.version} with the appropriate current release), and the bullet-compiler artifact as an "optional" or "provided" dependency:
+
+```xml
+<dependencies>
+ <dependency>
+  <groupId>net.ltgt.dagger</groupId>
+  <artifactId>bullet</artifactId>
+  <version>${bullet.version}</version>
+ </dependency>
+ <dependency>
+  <groupId>net.ltgt.dagger</groupId>
+  <artifactId>bullet-compiler</artifactId>
+  <version>${bullet.version}</version>
+  <optional>true</optional>
+ </dependency>
+</dependencies>
+```
+
+In a Gradle project is similar:
+
+```groovy
+compile 'net.ltgt.dagger:bullet:0.20'
+provided 'net.ltgt.dagger:bullet-compiler:0.20'
+```
+
+If using Gradle and Android, you could use [android-apt](https://bitbucket.org/hvisser/android-apt), which is more appropiate to use with Android Studio:
+
+```groovy
+compile 'net.ltgt.dagger:bullet:0.20'
+apt 'net.ltgt.dagger:bullet-compiler:0.20'
+```
+
 Notes on name and version
 -------------------------
 
