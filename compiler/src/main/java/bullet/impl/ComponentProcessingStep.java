@@ -177,8 +177,8 @@ class ComponentProcessingStep implements BasicAnnotationProcessor.ProcessingStep
     if (membersInjectionMethodsMap.size() > 0) {
       classBuilder.addField(ClassName.get("bullet.impl", "ClassIndexHashTable"), "classIndexHashTable", PRIVATE, STATIC, FINAL);
 
-      // ClassIndexHashTable size should be at least 30% larger and a prime number.
-      int classIndexHashTableSize = getNextPrime((int) Math.ceil(membersInjectionMethodsMap.size() * 1.3));
+      // ClassIndexHashTable size should be a prime number and also be large enough to provide a max load factor of 0.7.
+      int classIndexHashTableSize = getNextPrime((int) Math.ceil(membersInjectionMethodsMap.size() * (10 / 7d)));
 
       CodeBlock.Builder classIndexHashTableCodeBlockBuilder = CodeBlock.builder()
           .add("classIndexHashTable = new ClassIndexHashTable(" + classIndexHashTableSize + ");\n");
