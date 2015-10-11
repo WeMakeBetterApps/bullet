@@ -380,7 +380,7 @@ public abstract class AbstractComponentProcessorTest {
             "  private static final ClassIndexHashTable classIndexHashTable;\n" +
             "\n" +
             "  static {\n" +
-            "    classIndexHashTable = new ClassIndexHashTable(5);\n" +
+            "    classIndexHashTable = new ClassIndexHashTable(7);\n" +
             "    classIndexHashTable.put(C.class, (char) 0);\n" +
             "    classIndexHashTable.put(A.class, (char) 1);\n" +
             "    classIndexHashTable.put(B.class, (char) 2);\n" +
