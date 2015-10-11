@@ -5,7 +5,7 @@ public class ClassIndexHashTable {
   private final char[] values; // Using char as an unsigned 16-bit integer
 
   /**
-   * @param size should be a prime number and at least 30% larger than the number of entries to store.
+   * @param size should be a prime number and be large enough to provide a maximum load factor of 0.7
    */
   public ClassIndexHashTable(int size) {
     classes = new Class[size];
